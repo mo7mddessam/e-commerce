@@ -55,7 +55,7 @@ export async function checkout(userId, paymentMethod, shippingData) {
 
         const cartItems = await CartItem.findAll({
             where: { cartId: cart.id },
-            include: [Product],
+            include: [{ model: Product, as: 'product' }],
             transaction
         });
 
