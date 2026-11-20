@@ -19,7 +19,12 @@ import { errorMiddleware } from './middlewares/errorMiddleware.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
-
+app.use((req, res, next) => {
+    if (req.url.startsWith('/backend/')) {
+        req.url = req.url.slice('/backend'.length);
+    }
+    next();
+});
 
 app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), stripeWebhookController);
 
