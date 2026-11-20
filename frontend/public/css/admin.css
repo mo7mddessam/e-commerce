@@ -55,3 +55,9 @@
 @media (max-width: 520px) { .kpis { grid-template-columns: 1fr 1fr; } .kpi__val { font-size: 1.5rem; } }
 
 .ahead .muted { margin-top: .6rem; }
+.ord-acts { display: flex; flex-wrap: wrap; gap: .4rem; }
+.ord-sub { display: block; color: var(--text-3); font-size: .78rem; line-height: 1.35; }
+.ord-addr { max-width: 240px; }
+.ord-list { display: grid; gap: .8rem; }
+.ord-list li { display: grid; grid-template-columns: 1fr auto; gap: .2rem .9rem; align-items: center; }
+.ord-list small { display: block; }

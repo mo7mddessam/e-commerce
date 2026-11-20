@@ -21,6 +21,6 @@ export const updateOrderStatusValidation = [
         .notEmpty()
         .withMessage('Order status is required')
         .bail()
-        .isIn(['confirmed', 'shipped', 'delivered'])
+        .isIn(['confirmed', 'shipped', 'delivered', 'cancelled'])
         .withMessage('Invalid order status')
 ];

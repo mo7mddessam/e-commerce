@@ -1,6 +1,7 @@
 import {
     getMyOrders,
     getOrderById,
+    getAllOrders,
     cancelOrder,
     updateOrderStatus
 } from '../services/orderServices.js';
@@ -62,6 +63,19 @@ export async function updateOrderStatusController(req, res, next) {
         return res.status(200).json({
             message: 'Order status updated successfully',
             order
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+export async function getAllOrdersController(req, res, next) {
+    try {
+        const orders = await getAllOrders();
+
+        return res.status(200).json({
+            message: 'Orders retrieved successfully',
+            orders
         });
     } catch (error) {
         next(error);

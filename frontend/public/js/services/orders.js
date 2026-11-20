@@ -16,6 +16,9 @@ export function normalizeOrder(o, products = []) {
   });
   return {
     id: o.id,
+    userId: o.userId,
+    customer: o.User ? { id: o.User.id, name: o.User.name, email: o.User.email } : null,   // only on the admin list
+    payment: o.Payment ? { method: o.Payment.method, status: o.Payment.status } : null,
     status: o.status,
     total: Number(o.totalPrice),
     recipientName: o.recipientName,
@@ -59,6 +62,12 @@ export const paymentReturn = (sessionId) =>
 export const paymentCancelled = () => api('/payment/cancel', { auth: false });
 
 // ---- admin ----
+export async function adminListOrders() {
+  const [res, products] = await Promise.all([api('/orders/admin/all'), getProducts().catch(() => [])]);
+  const rows = Array.isArray(res?.orders) ? res.orders : [];
+  return rows.map((o) => normalizeOrder(o, products));   // already newest first
+}
+
 export async function adminSetOrderStatus(orderId, status) {
   const res = await api(`/orders/${encodeURIComponent(orderId)}/status`, { method: 'PATCH', body: { status } });
   return res.order;
