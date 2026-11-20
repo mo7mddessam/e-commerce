@@ -1,3 +1,4 @@
+
 import sequelize from '../config/database.js';
 import Order from '../models/order.js';
 import OrderItem from '../models/orderitem.js';
@@ -5,22 +6,32 @@ import Product from '../models/product.js';
 import { httpError } from '../utils/httpError.js';
 
 export async function getMyOrders(userId) {
-  const orders = await Order.findAll({
-    where: { userId },
-    include: [OrderItem]
-  });
-  if (orders.length===0) {
-    throw httpError(200, 'No orders found');
-  }
-  return orders;
+    const orders = await Order.findAll({
+        where: { userId },
+        include: [
+            {
+                model: OrderItem,
+                include: [{ model: Product }]
+            }
+        ],
+        order: [['createdAt', 'DESC']]
+    });
+
+    return orders;
 }
-export async function getOrderById(orderid, userId) {
+
+export async function getOrderById(orderId, userId) {
     const order = await Order.findOne({
         where: {
-            id: orderid,
+            id: orderId,
             userId
         },
-        include: [OrderItem]
+        include: [
+            {
+                model: OrderItem,
+                include: [{ model: Product }]
+            }
+        ]
     });
 
     if (!order) {
@@ -29,6 +40,7 @@ export async function getOrderById(orderid, userId) {
 
     return order;
 }
+
 export async function cancelOrder(orderId, userId) {
     const transaction = await sequelize.transaction();
 
@@ -115,3 +127,4 @@ export async function updateOrderStatus(orderId, status) {
     await order.save();
 
     return order;
+}
