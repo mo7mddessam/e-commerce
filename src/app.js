@@ -1,6 +1,6 @@
-
 import express from 'express';
-import './models/relations.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import userRoutes from './routes/userRoutes.js';
 import productRoutes from './routes/productRoutes.js';
@@ -17,13 +17,12 @@ import { paymentSuccessController, paymentCancelController } from './controllers
 import { startReservationScheduler } from './reservationScheduler.js';
 import { errorMiddleware } from './middlewares/errorMiddleware.js';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 
 
 app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), stripeWebhookController);
 
-// Stripe redirects here after Checkout. These routes report status only;
-// the signed webhook is responsible for changing payment/order records.
 app.get('/payment/success', paymentSuccessController);
 app.get('/payment/cancel', paymentCancelController);
 
@@ -35,6 +34,8 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/checkout', checkoutRoutes);
 app.use('/api/payments', paymentRoutes);
+
+app.use(express.static(path.join(__dirname, '..', 'frontend', 'public')));
 
 app.use(errorMiddleware);
 
