@@ -115,4 +115,3 @@ export async function updateOrderStatus(orderId, status) {
     await order.save();
 
     return order;
-}
