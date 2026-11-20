@@ -1,7 +1,7 @@
 import { Product, Cart, CartItem } from '../models/index.js';
 
 export async function addToCart(userId, productId, quantity) {
-  // نجيب المنتج
+
   const product = await Product.findByPk(productId);
   if (!product) {
     const error = new Error('Product not found');
@@ -9,7 +9,6 @@ export async function addToCart(userId, productId, quantity) {
     throw error;
   }
 
-  // نشوف الكارت موجودة ولا لأ
   let cart = await Cart.findOne({
     where: { userId },
   });
@@ -18,7 +17,6 @@ export async function addToCart(userId, productId, quantity) {
     cart = await Cart.create({ userId });
   }
 
-  // نشوف المنتج موجود في الكارت ولا لأ
   let cartItem = await CartItem.findOne({
     where: {
       cartId: cart.id,
@@ -28,7 +26,6 @@ export async function addToCart(userId, productId, quantity) {
 
   const newQuantity = (cartItem ? cartItem.quantity : 0) + quantity;
 
-  // التأكد من توفر الكمية في المخزون
   if (newQuantity > product.stock) {
     const error = new Error('Not enough stock');
     error.statusCode = 400;
@@ -62,7 +59,7 @@ export async function getCart(userId) {
 
   const result = await CartItem.findAll({
     where: { cartId: cart.id },
-    include: [Product],
+    include: [{ model: Product, as: 'product' }]
   });
 
   return result;
