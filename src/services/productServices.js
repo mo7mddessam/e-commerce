@@ -1,5 +1,4 @@
-
-import Product from '../models/Product.js';
+import Product from '../models/product.js';
 
 export async function newproduct({ name, description, price, stock, imageUrl }) {
     const existingproduct = await Product.findOne({

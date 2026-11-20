@@ -19,7 +19,7 @@ export async function registerUser({ name, email, password }) {
         name,
         email,
         password: hashedPass,
-        role: 'user'
+        role: 'customer'
     });
 
     return {

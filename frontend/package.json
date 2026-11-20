@@ -1,0 +1,13 @@
+{
+  "name": "me-storefront",
+  "version": "1.0.0",
+  "private": true,
+  "description": "M.E — storefront and admin frontend (zero-dependency ES-module SPA)",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node --watch server.mjs",
+    "check": "node scripts/check.mjs"
+  },
+  "engines": { "node": ">=18" }
+}

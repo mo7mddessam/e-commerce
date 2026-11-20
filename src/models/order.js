@@ -10,17 +10,37 @@ const Order = sequelize.define(
             primaryKey: true,
             autoIncrement: true
         },
+
         userId: {
             type: DataTypes.INTEGER,
             allowNull: false
         },
-        totalAmount: {
+
+        recipientName: {
+            type: DataTypes.STRING(100),
+            allowNull: false
+        },
+
+        phone: {
+            type: DataTypes.STRING(20),
+            allowNull: false
+        },
+
+        shippingAddress: {
+            type: DataTypes.STRING(500),
+            allowNull: false
+        },
+
+        totalPrice: {
             type: DataTypes.DECIMAL(10, 2),
             allowNull: false
         },
+
         status: {
             type: DataTypes.ENUM(
                 'pending',
+                'reserved',
+                'paid',
                 'confirmed',
                 'shipped',
                 'delivered',
@@ -28,11 +48,16 @@ const Order = sequelize.define(
             ),
             allowNull: false,
             defaultValue: 'pending'
+        },
+
+        reservationExpiresAt: {
+            type: DataTypes.DATE,
+            allowNull: true
         }
     },
     {
-        tableName: 'Orders',
-        timestamps: false
+        tableName: 'orders',
+        timestamps: true
     }
 );
 

@@ -11,7 +11,7 @@ const product = sequelize.define(
             autoIncrement: true
         },
         name: {
-            type: DataTypes.STRING(150),
+            type: DataTypes.STRING(100),
             allowNull: false
         },
         description: {
@@ -27,14 +27,19 @@ const product = sequelize.define(
             allowNull: false,
             defaultValue: 0
         },
+        reservedStock: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
+        },
         imageUrl: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(255),
             allowNull: true
         }
     },
     {
-        tableName: 'Products',
-        timestamps: false
+        tableName: 'products',
+        timestamps: true
     }
 );
 

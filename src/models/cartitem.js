@@ -25,7 +25,7 @@ const CartItem = sequelize.define(
         }
     },
     {
-        tableName: 'CartItems',
+        tableName: 'cartitems',
         timestamps: false
     }
 );
