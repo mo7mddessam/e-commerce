@@ -8,7 +8,7 @@ import {
     Order,
     OrderItem,
     Payment
-} from '../models/index.js';
+} from '../models/relations.js';
 
 export async function checkout(userId, paymentMethod, shippingData) {
     const transaction = await sequelize.transaction();

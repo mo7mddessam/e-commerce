@@ -1,5 +1,5 @@
 import sequelize from '../config/database.js';
-import { Order, OrderItem, Product } from '../models/index.js';
+import { Order, OrderItem, Product } from '../models/relations.js';
 
 export async function getMyOrders(userId) {
     const orders = await Order.findAll({

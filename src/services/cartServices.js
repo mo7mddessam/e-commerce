@@ -1,4 +1,4 @@
-import { Product, Cart, CartItem } from '../models/index.js';
+import { Product, Cart, CartItem } from '../models/relations.js';
 
 export async function addToCart(userId, productId, quantity) {
 

@@ -1,6 +1,6 @@
 import sequelize from '../config/database.js';
 import { Op } from 'sequelize';
-import { Order, OrderItem, Product } from '../models/index.js';
+import { Order, OrderItem, Product } from '../models/relations.js';
 
 export async function releaseExpiredReservations() {
     const transaction = await sequelize.transaction();
