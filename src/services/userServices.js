@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/user.js';
+import { httpError } from '../utils/httpError.js';
 
 export async function registerUser({ name, email, password }) {
     const existingacc = await User.findOne({
@@ -8,9 +9,7 @@ export async function registerUser({ name, email, password }) {
     });
 
     if (existingacc) {
-        const error = new Error('Email has already been used');
-        error.statusCode = 409;
-        throw error;
+        throw httpError(409, 'Email has already been used');
     }
 
     const hashedPass = await bcrypt.hash(password, 12);
@@ -36,9 +35,7 @@ export async function loginUser({ email, password }) {
     });
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
-        const error = new Error('Invalid email or password');
-        error.statusCode = 401;
-        throw error;
+        throw httpError(401, 'Invalid email or password');
     }
 
     const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
@@ -60,9 +57,7 @@ export async function getUserById(id) {
     });
 
     if (!user) {
-        const error = new Error('User not found');
-        error.statusCode = 404;
-        throw error;
+        throw httpError(404, 'User not found');
     }
 
     return user;
@@ -73,9 +68,7 @@ export async function updateUser(id, { name, email, password }) {
     const user = await User.findByPk(id);
 
     if (!user) {
-        const error = new Error('User not found');
-        error.statusCode = 404;
-        throw error;
+        throw httpError(404, 'User not found');
     }
 
   //n3ml elshroot bta3tna 3la kol 7aga momken tndaf
@@ -87,9 +80,7 @@ export async function updateUser(id, { name, email, password }) {
         const existingUser = await User.findOne({ where: { email } });
 
         if (existingUser) {
-            const error = new Error('Email is already registered');
-            error.statusCode = 409;
-            throw error;
+            throw httpError(409, 'Email is already registered');
         }
         user.email = email;
     }
@@ -115,9 +106,7 @@ export async function deleteUser(id) {
     const user = await User.findByPk(id);
 
     if (!user) {
-        const error = new Error('User is not found');
-        error.statusCode = 404;
-        throw error;
+        throw httpError(404, 'User is not found');
     }
 
     await user.destroy();

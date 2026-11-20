@@ -1,4 +1,5 @@
 import Product from '../models/product.js';
+import { httpError } from '../utils/httpError.js';
 
 export async function newproduct({ name, description, price, stock, imageUrl }) {
     const existingproduct = await Product.findOne({
@@ -6,9 +7,7 @@ export async function newproduct({ name, description, price, stock, imageUrl }) 
     });
 
     if (existingproduct) {
-        const error = new Error('A product with the same name and description already exists');
-        error.statusCode = 409;
-        throw error;
+        throw httpError(409, 'A product with the same name and description already exists');
     }
 
     const product = await Product.create({
@@ -32,9 +31,7 @@ export async function updateproduct(id, { name, description, price, stock, image
     const theproduct = await Product.findByPk(id);
 
     if (!theproduct) {
-        const error = new Error('Product is not found');
-        error.statusCode = 404;
-        throw error;
+        throw httpError(404, 'Product is not found');
     }
 
   //3ml variable updatedname hyakhod (- name lw hwa undefined y3ni mesh mt7aded) aww (- theproduct.name elesm elgdeed)
@@ -50,9 +47,7 @@ export async function updateproduct(id, { name, description, price, stock, image
     });
 
     if (existingproduct && existingproduct.id !== theproduct.id) {
-        const error = new Error('A product with the same name and description already exists');
-        error.statusCode = 409;
-        throw error;
+        throw httpError(409, 'A product with the same name and description already exists');
     }
 
     if (name !== undefined) theproduct.name = name;
@@ -76,9 +71,7 @@ export async function deleteproduct(id) {
     const theproduct = await Product.findByPk(id);
 
     if (!theproduct) {
-        const error = new Error('Product is not found');
-        error.statusCode = 404;
-        throw error;
+        throw httpError(404, 'Product is not found');
     }
 
     await theproduct.destroy();
@@ -96,9 +89,7 @@ export async function getallproducts() {
 export async function getproductbyid(id) {
   const theproduct = await Product.findByPk(id);
   if (!theproduct){
-      const error = new Error('the product is not found');
-      error.statusCode = 404;
-      throw error;
+      throw httpError(404, 'the product is not found');
   }
 
   return theproduct;

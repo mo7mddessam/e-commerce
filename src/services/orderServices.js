@@ -1,21 +1,19 @@
 import sequelize from '../config/database.js';
-import { Order, OrderItem, Product } from '../models/relations.js';
+import Order from '../models/order.js';
+import OrderItem from '../models/orderitem.js';
+import Product from '../models/product.js';
+import { httpError } from '../utils/httpError.js';
 
 export async function getMyOrders(userId) {
-    const orders = await Order.findAll({
-        where: { userId },
-        include: [OrderItem]
-    });
-
-    if (orders.length === 0) {
-        const error = new Error('No orders found');
-        error.statusCode = 200;
-        throw error;
-    }
-
-    return orders;
+  const orders = await Order.findAll({
+    where: { userId },
+    include: [OrderItem]
+  });
+  if (orders.length===0) {
+    throw httpError(200, 'No orders found');
+  }
+  return orders;
 }
-
 export async function getOrderById(orderid, userId) {
     const order = await Order.findOne({
         where: {
@@ -26,14 +24,11 @@ export async function getOrderById(orderid, userId) {
     });
 
     if (!order) {
-        const error = new Error('Order not found');
-        error.statusCode = 404;
-        throw error;
+        throw httpError(404, 'Order not found');
     }
 
     return order;
 }
-
 export async function cancelOrder(orderId, userId) {
     const transaction = await sequelize.transaction();
 
@@ -45,15 +40,11 @@ export async function cancelOrder(orderId, userId) {
         });
 
         if (!order) {
-            const error = new Error('Order not found');
-            error.statusCode = 404;
-            throw error;
+            throw httpError(404, 'Order not found');
         }
 
         if (!['reserved', 'confirmed'].includes(order.status)) {
-            const error = new Error('Order cannot be cancelled');
-            error.statusCode = 400;
-            throw error;
+            throw httpError(400, 'Order cannot be cancelled');
         }
 
         const orderItems = await OrderItem.findAll({
@@ -69,9 +60,7 @@ export async function cancelOrder(orderId, userId) {
             });
 
             if (!product) {
-                const error = new Error('Product not found');
-                error.statusCode = 404;
-                throw error;
+                throw httpError(404, 'Product not found');
             }
 
             if (order.status === 'reserved') {
@@ -112,17 +101,13 @@ export async function updateOrderStatus(orderId, status) {
     ];
 
     if (!allowedStatuses.includes(status)) {
-        const error = new Error('Invalid order status');
-        error.statusCode = 400;
-        throw error;
+        throw httpError(400, 'Invalid order status');
     }
 
     const order = await Order.findByPk(orderId);
 
     if (!order) {
-        const error = new Error('Order not found');
-        error.statusCode = 404;
-        throw error;
+        throw httpError(404, 'Order not found');
     }
 
     order.status = status;

@@ -14,7 +14,8 @@ import {
 } from './controllers/stripeWebhookController.js';
 import { paymentSuccessController, paymentCancelController } from './controllers/paymentController.js';
 
-import { startReservationScheduler } from './reservationScheduler.js';
+import { releaseExpiredReservations } from './services/reservationServices.js';
+import { initDb } from './config/initDb.js';
 import { errorMiddleware } from './middlewares/errorMiddleware.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -24,6 +25,16 @@ app.use((req, res, next) => {
         req.url = req.url.slice('/backend'.length);
     }
     next();
+});
+
+// make sure the tables / associations are ready before any request touches the DB
+app.use(async (req, res, next) => {
+    try {
+        await initDb();
+        next();
+    } catch (error) {
+        next(error);
+    }
 });
 
 app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), stripeWebhookController);
@@ -40,10 +51,24 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/checkout', checkoutRoutes);
 app.use('/api/payments', paymentRoutes);
 
-app.use(express.static(path.join(__dirname, '..', 'frontend', 'public')));
+// Vercel Cron target (the reservation scheduler can't run in a serverless function)
+app.get('/api/cron/release-reservations', async (req, res, next) => {
+    try {
+        const secret = process.env.CRON_SECRET;
+        if (!secret || req.headers.authorization !== `Bearer ${secret}`) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+        res.json(await releaseExpiredReservations());
+    } catch (error) {
+        next(error);
+    }
+});
+
+// Local only: on Vercel the frontend is served as static files straight from frontend/public
+if (!process.env.VERCEL) {
+    app.use(express.static(path.join(__dirname, '..', 'frontend', 'public')));
+}
 
 app.use(errorMiddleware);
-
-startReservationScheduler();
 
 export default app;

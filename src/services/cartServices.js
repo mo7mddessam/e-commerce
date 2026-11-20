@@ -1,12 +1,11 @@
-import { Product, Cart, CartItem } from '../models/relations.js';
+import { Product, Cart, CartItem } from '../models/index.js';
+import { httpError } from '../utils/httpError.js';
 
 export async function addToCart(userId, productId, quantity) {
 
   const product = await Product.findByPk(productId);
   if (!product) {
-    const error = new Error('Product not found');
-    error.statusCode = 404;
-    throw error;
+    throw httpError(404, 'Product not found');
   }
 
   let cart = await Cart.findOne({
@@ -27,9 +26,7 @@ export async function addToCart(userId, productId, quantity) {
   const newQuantity = (cartItem ? cartItem.quantity : 0) + quantity;
 
   if (newQuantity > product.stock) {
-    const error = new Error('Not enough stock');
-    error.statusCode = 400;
-    throw error;
+    throw httpError(400, 'Not enough stock');
   }
 
   if (cartItem) {
@@ -52,9 +49,7 @@ export async function getCart(userId) {
   });
 
   if (!cart) {
-    const error = new Error('Cart not found');
-    error.statusCode = 404;
-    throw error;
+    throw httpError(404, 'Cart not found');
   }
 
   const result = await CartItem.findAll({
@@ -71,9 +66,7 @@ export async function updateCartItem(userId, productId, quantity) {
   });
 
   if (!cart) {
-    const error = new Error('Cart not found');
-    error.statusCode = 404;
-    throw error;
+    throw httpError(404, 'Cart not found');
   }
 
   const cartItem = await CartItem.findOne({
@@ -84,23 +77,17 @@ export async function updateCartItem(userId, productId, quantity) {
   });
 
   if (!cartItem) {
-    const error = new Error('Product not found in cart');
-    error.statusCode = 404;
-    throw error;
+    throw httpError(404, 'Product not found in cart');
   }
 
   const product = await Product.findByPk(productId);
 
   if (!product) {
-    const error = new Error('Product not found');
-    error.statusCode = 404;
-    throw error;
+    throw httpError(404, 'Product not found');
   }
 
   if (quantity > product.stock) {
-    const error = new Error('Not enough stock');
-    error.statusCode = 400;
-    throw error;
+    throw httpError(400, 'Not enough stock');
   }
 
   cartItem.quantity = quantity;
@@ -115,9 +102,7 @@ export async function deletefromcart(userId, productId) {
   });
 
   if (!cart) {
-    const error = new Error('Cart not found');
-    error.statusCode = 404;
-    throw error;
+    throw httpError(404, 'Cart not found');
   }
 
   const cartItem = await CartItem.findOne({
@@ -128,9 +113,7 @@ export async function deletefromcart(userId, productId) {
   });
 
   if (!cartItem) {
-    const error = new Error('Product not found in cart');
-    error.statusCode = 404;
-    throw error;
+    throw httpError(404, 'Product not found in cart');
   }
 
   await cartItem.destroy();
@@ -146,9 +129,7 @@ export async function clearCart(userId) {
   });
 
   if (!cart) {
-    const error = new Error('Cart not found');
-    error.statusCode = 404;
-    throw error;
+    throw httpError(404, 'Cart not found');
   }
 
   await CartItem.destroy({

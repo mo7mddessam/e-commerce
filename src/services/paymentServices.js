@@ -4,6 +4,7 @@ import Payment from '../models/payment.js';
 import Order from '../models/order.js';
 import OrderItem from '../models/orderitem.js';
 import Product from '../models/product.js';
+import { httpError } from '../utils/httpError.js';
 
 export async function processPayment(paymentId) {
     const transaction = await sequelize.transaction();
@@ -16,21 +17,15 @@ export async function processPayment(paymentId) {
         });
 
         if (!payment) {
-            const error = new Error('Payment not found');
-            error.statusCode = 404;
-            throw error;
+            throw httpError(404, 'Payment not found');
         }
 
         if (payment.status !== 'pending') {
-            const error = new Error('Payment already processed');
-            error.statusCode = 400;
-            throw error;
+            throw httpError(400, 'Payment already processed');
         }
 
         if (payment.method !== 'card') {
-            const error = new Error('Payment method must be card');
-            error.statusCode = 400;
-            throw error;
+            throw httpError(400, 'Payment method must be card');
         }
 
 
@@ -40,21 +35,15 @@ export async function processPayment(paymentId) {
         });
 
         if (!order) {
-            const error = new Error('Order not found');
-            error.statusCode = 404;
-            throw error;
+            throw httpError(404, 'Order not found');
         }
 
         if (order.status !== 'reserved') {
-            const error = new Error('Order is not awaiting payment');
-            error.statusCode = 400;
-            throw error;
+            throw httpError(400, 'Order is not awaiting payment');
         }
 
         if (!order.reservationExpiresAt ||new Date(order.reservationExpiresAt) <= new Date()) {
-            const error = new Error('Order reservation has expired');
-            error.statusCode = 400;
-            throw error;
+            throw httpError(400, 'Order reservation has expired');
         }
 
 
@@ -65,9 +54,7 @@ export async function processPayment(paymentId) {
         });
 
         if (orderItems.length === 0) {
-            const error = new Error('Order has no items');
-            error.statusCode = 400;
-            throw error;
+            throw httpError(400, 'Order has no items');
         }
 
 
@@ -79,11 +66,7 @@ export async function processPayment(paymentId) {
 
             if (!product ||product.stock < item.quantity || product.reservedStock < item.quantity
             ) {
-                const error = new Error(
-                    'Reserved stock is no longer available'
-                );
-                error.statusCode = 400;
-                throw error;
+                throw httpError(400, 'Reserved stock is no longer available');
             }
 
             product.stock -= item.quantity;
