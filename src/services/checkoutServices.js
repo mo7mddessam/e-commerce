@@ -1,14 +1,14 @@
-
 import sequelize from '../config/database.js';
 import stripe from '../config/stripe.js';
 
-import Cart from '../models/cart.js';
-import CartItem from '../models/cartitem.js';
-import Product from '../models/product.js';
-
-import Order from '../models/order.js';
-import OrderItem from '../models/orderitem.js';
-import Payment from '../models/payment.js';
+import {
+    Cart,
+    CartItem,
+    Product,
+    Order,
+    OrderItem,
+    Payment
+} from '../models/index.js';
 
 export async function checkout(userId, paymentMethod, shippingData) {
     const transaction = await sequelize.transaction();
@@ -55,7 +55,7 @@ export async function checkout(userId, paymentMethod, shippingData) {
 
         const cartItems = await CartItem.findAll({
             where: { cartId: cart.id },
-            include: [{ model: Product, as: 'product' }],
+            include: [{ model: Product }],
             transaction
         });
 
@@ -73,7 +73,7 @@ export async function checkout(userId, paymentMethod, shippingData) {
                 throw error;
             }
 
-            if (!item.product) {
+            if (!item.Product) {
                 const error = new Error('Product not found');
                 error.statusCode = 404;
                 throw error;
@@ -84,7 +84,7 @@ export async function checkout(userId, paymentMethod, shippingData) {
             cartItems.reduce(
                 (total, item) =>
                     total +
-                    Number(item.quantity) * Number(item.product.price),
+                    Number(item.quantity) * Number(item.Product.price),
                 0
             ).toFixed(2)
         );
@@ -136,8 +136,8 @@ export async function checkout(userId, paymentMethod, shippingData) {
                     orderId: order.id,
                     productId: item.productId,
                     quantity: item.quantity,
-                    price: Number(item.product.price) * Number(item.quantity),
-                    unitPrice: item.product.price
+                    price: Number(item.Product.price) * Number(item.quantity),
+                    unitPrice: item.Product.price
                 },
                 { transaction }
             );
@@ -173,10 +173,10 @@ export async function checkout(userId, paymentMethod, shippingData) {
                     price_data: {
                         currency,
                         product_data: {
-                            name: item.product.name
+                            name: item.Product.name
                         },
                         unit_amount: Math.round(
-                            Number(item.product.price) * 100
+                            Number(item.Product.price) * 100
                         )
                     },
                     quantity: Number(item.quantity)

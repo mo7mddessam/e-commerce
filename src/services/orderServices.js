@@ -1,20 +1,21 @@
 import sequelize from '../config/database.js';
-import Order from '../models/order.js';
-import OrderItem from '../models/orderitem.js';
-import Product from '../models/product.js';
+import { Order, OrderItem, Product } from '../models/index.js';
 
 export async function getMyOrders(userId) {
-  const orders = await Order.findAll({
-    where: { userId },
-    include: [OrderItem]
-  });
-  if (orders.length===0) {
-    const error = new Error('No orders found');
-    error.statusCode = 200;
-    throw error;
-  }
-  return orders;
+    const orders = await Order.findAll({
+        where: { userId },
+        include: [OrderItem]
+    });
+
+    if (orders.length === 0) {
+        const error = new Error('No orders found');
+        error.statusCode = 200;
+        throw error;
+    }
+
+    return orders;
 }
+
 export async function getOrderById(orderid, userId) {
     const order = await Order.findOne({
         where: {
@@ -32,6 +33,7 @@ export async function getOrderById(orderid, userId) {
 
     return order;
 }
+
 export async function cancelOrder(orderId, userId) {
     const transaction = await sequelize.transaction();
 
@@ -49,7 +51,7 @@ export async function cancelOrder(orderId, userId) {
         }
 
         if (!['reserved', 'confirmed'].includes(order.status)) {
-            const error = new Error('Order cannot be  ةcancelled');
+            const error = new Error('Order cannot be cancelled');
             error.statusCode = 400;
             throw error;
         }
